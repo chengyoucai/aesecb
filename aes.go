@@ -35,6 +35,21 @@ func Encrypt(plantText, key []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
+/**
+*  ECB/NoPadding
+*
+ */
+func ECBZeroPadding(plantText []byte) []byte {
+	bit16 := len(plantText) % 16
+
+	if bit16 == 0 {
+		return plantText
+	} else {
+		// 计算补足的位数，填补16的位数，例如 10 = 16, 17 = 32, 33 = 48
+		return append(plantText, bytes.Repeat([]byte{byte(0)}, 16-bit16)...)
+	}
+}
+
 func DecryptString(ciphertext, key string) (string, error) {
 	ciphertext1, err := hex.DecodeString(ciphertext)
 	if err != nil {
@@ -52,18 +67,18 @@ func DecryptString(ciphertext, key string) (string, error) {
 
 func Decrypt(ciphertext, key []byte) ([]byte, error) {
 	keyBytes := []byte(key)
-	block, err := aes.NewCipher(keyBytes) //选择加密算法
+	block, err := aes.NewCipher(keyBytes)
 	if err != nil {
 		return nil, err
 	}
 	blockModel := NewECBDecrypter(block)
 	plantText := make([]byte, len(ciphertext))
 	blockModel.CryptBlocks(plantText, ciphertext)
-	plantText = ECBNoZeroPadding(plantText)
+	plantText = ECBUnZeroPadding(plantText)
 	return plantText, nil
 }
 
-func ECBNoZeroPadding(plantText []byte) []byte {
+func ECBUnZeroPadding(plantText []byte) []byte {
 	l := len(plantText)
 
 	//大于16，需要把结尾是0的截取掉
@@ -76,22 +91,4 @@ func ECBNoZeroPadding(plantText []byte) []byte {
 	}
 
 	return plantText
-}
-
-/**
-*  ECB/NoPadding
-*
- */
-func ECBZeroPadding(plantText []byte) []byte {
-	// 需要填充的数量
-	padding := 0
-	bit16 := len(plantText) % 16
-
-	if bit16 == 0 {
-		return plantText
-	} else {
-		// 计算补足的位数，填补16的位数，例如 10 = 16, 17 = 32, 33 = 48
-		padding = 16 - bit16
-		return append(plantText, bytes.Repeat([]byte{byte(0)}, padding)...)
-	}
 }
