@@ -37,6 +37,7 @@ func TestDecryptString(t *testing.T) {
 	for _, v := range cases {
 		ret, err := DecryptString(v.Ciphertext, key)
 
+
 		if err != nil {
 			t.Fatalf("DecryptString(`%s`) error: `%s`", v.Ciphertext, err)
 
